@@ -67,6 +67,9 @@ def generate_message(text, sender_id):
         else: respond = "You have not drank any water today! Drank more water!"
     elif text == "1":
         respond = "Package tracking is not avaliable"
+    elif text[:17] == "reset water level":
+        reset_water_level = waterPlusOne(sender_id, text[18:])
+        respond = "You have reset your water level to {} cups.".format(text[18:])
     else: respond = "Huh?"
     return respond
 
@@ -76,7 +79,7 @@ def readWaterData():
     return water_consumption_dic
 
 """ log water comsuption record of the day"""
-def waterPlusOne(user):
+def waterPlusOne(user, reset = None):
     # check if it is a new day than last modified
     modification_date = time.localtime(os.path.getmtime('water.csv'))
     current_date = time.localtime()
@@ -94,11 +97,12 @@ def waterPlusOne(user):
         water_consumption_dic = {}
         water_consumption_dic[user] = "1"
 
+    if reset:
+        water_consumption_dic[user] = reset
     with open('water.csv','w') as writeFile:
         writer = csv.writer(writeFile)
         for key, value in water_consumption_dic.items():
             writer.writerow([key, value])
-    print("here")
     return water_consumption_dic[user]
 
 if __name__ == "__main__":
