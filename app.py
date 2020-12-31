@@ -83,10 +83,11 @@ def generate_message(text, sender_id):
         respond = "1. Bible Reading Daily Reminder \n2. Track Water Consumption"
     elif text == "2":
         # read water consumption data from file 
-        water_consumption_dic = readWaterData()
-        if water_consumption_dic[sender_id]:
-            respond = "You have drank {} cups of water today!".format(water_consumption_dic[sender_id])
-        else: respond = "You have not drank any water today! Drank more water!"
+        with shelve.open('water') as db:
+            if db[sender_id]:
+                respond = "You have drank {} cups of water today!".format(db[sender_id])
+            else: respond = "You have not drank any water today! Drank more water!"
+        
     elif text == "1":
         try:
             book, chapter = getBibleReader(sender_id)
@@ -118,37 +119,32 @@ def generate_message(text, sender_id):
     else: respond = "Huh?"
     return respond
 
-def readWaterData():
-    with open('water.csv') as f:
-        water_consumption_dic = dict(filter(None,csv.reader(f)))
-    return water_consumption_dic
-
 """ log water comsuption record of the day"""
 def waterPlusOne(user, reset = None):
     # check if it is a new day than last modified
     modification_date = time.localtime(os.path.getmtime('water.csv'))
     current_date = time.localtime()
+    current_water_level = 0
     if modification_date.tm_year == current_date.tm_year and modification_date.tm_mon == current_date.tm_mon and modification_date.tm_mday == current_date.tm_mday:
     
-        # read water consumption data from file 
-        water_consumption_dic = readWaterData()
-
-        if user in water_consumption_dic:
-            water_consumption_dic[user] = str(int(water_consumption_dic[user]) + 1)
-        else:
-            water_consumption_dic[user] = "1"
+        # read water consumption data from db
+        with shelve.open('water') as db:
+            if user in db:
+                db[user] = db[user] + 1
+                current_water_level = db[user]
+            else:
+                db[user] = 1
+                current_water_level = db[user]
     # if it is a new day
     else:
-        water_consumption_dic = {}
-        water_consumption_dic[user] = "1"
-
+        with shelve.open('water') as db:
+            db[user] = 1
+            current_water_level = 1
     if reset:
-        water_consumption_dic[user] = reset
-    with open('water.csv','w') as writeFile:
-        writer = csv.writer(writeFile)
-        for key, value in water_consumption_dic.items():
-            writer.writerow([key, value])
-    return water_consumption_dic[user]
+        with shelve.open('water') as db:
+            db[user] = reset
+            current_water_level = db[user]
+    return current_water_level
 
 """get the list of users from the database"""
 def getBibleReadersInfo():
