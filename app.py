@@ -20,18 +20,26 @@ def sendBibleNotification():
                         }
         response = requests.post('https://graph.facebook.com/v5.0/me/messages?access_token='+credentials.FB_ACCESS_TOKEN,json=request_body).json()
 
+def sendWaterDrinkingNotification():
+    water_ids, cups_list = getWaterUsersInfo()
+    for i in range(len(water_ids)):
+        request_body = {
+                        'recipient': {
+                            'id': water_ids[i]
+                        },
+                        'message': {"text":"You have drank {} cups of water today! You need to drink {} more cups!".format(cups_list[i], 8-cups_list[i])}
+                        }
+        response = requests.post('https://graph.facebook.com/v5.0/me/messages?access_token='+credentials.FB_ACCESS_TOKEN,json=request_body).json()
+
 cron = BackgroundScheduler(daemon = True)
-cron.add_job(func = sendBibleNotification, trigger = "interval", days = 1)
+cron.add_job(func = sendBibleNotification, trigger = "cron", day = *)
+cron.add_job(func =  sendWaterDrinkingNotification, trigger = "cron", day = *)
 cron.start()
 
 @app.route("/", methods=['GET'])
 def root():
     output = request.get_json()
-    print(output)
     return 'ok'
-
-
-
 
 # Adds support for GET requests to our webhook
 @app.route('/webhook',methods=['GET'])
@@ -146,13 +154,18 @@ def waterPlusOne(user, reset = None):
             current_water_level = db[user]
     return current_water_level
 
-"""get the list of users from the database"""
+"""get the list of the water drinking users from the db"""
+def getWaterUsersInfo():
+    with shelve.open("water") as db:
+        user_list = list(db.keys())
+        cups_list = list(db.values())
+    return user_list, cups_list
+
+"""get the list of bible reading users from the database"""
 def getBibleReadersInfo():
-    chapters_list = []
     with shelve.open('bibleReading') as db:
         users_list = list(db.keys())
-        for user in users_list:
-            chapters_list.append(db[user])
+        chapters_list = list(db.values())
     return users_list, chapters_list
 
 """get the book the user is reading"""
