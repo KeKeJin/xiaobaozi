@@ -33,7 +33,7 @@ def sendWaterDrinkingNotification():
 
 cron = BackgroundScheduler(daemon = True)
 cron.add_job(func = sendBibleNotification, trigger = "cron", day = *)
-cron.add_job(func =  sendWaterDrinkingNotification, trigger = "cron", day = *)
+cron.add_job(func =  sendWaterDrinkingNotification, trigger = "cron", hour = */23)
 cron.start()
 
 @app.route("/", methods=['GET'])
