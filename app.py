@@ -32,8 +32,8 @@ def sendWaterDrinkingNotification():
         response = requests.post('https://graph.facebook.com/v5.0/me/messages?access_token='+credentials.FB_ACCESS_TOKEN,json=request_body).json()
 
 cron = BackgroundScheduler(daemon = True)
-cron.add_job(func = sendBibleNotification, trigger = "cron", day = *)
-cron.add_job(func =  sendWaterDrinkingNotification, trigger = "cron", hour = */23)
+cron.add_job(func = sendBibleNotification, trigger = "cron", day = '*')
+cron.add_job(func =  sendWaterDrinkingNotification, trigger = "cron", hour = '*/23')
 cron.start()
 
 @app.route("/", methods=['GET'])
