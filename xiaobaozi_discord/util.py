@@ -51,8 +51,9 @@ def water_summary(db, date):
     cur = db.cursor()
     result = cur.execute(select).fetchall()
     cleaned_result = Counter([user for user, channel, date, time in result])
-    winner, winner_value = cleaned_result.most_common()[0]
-    return winner, winner_value
+    if cleaned_result != Counter():
+        winner, winner_value = cleaned_result.most_common()[0]
+        return winner, winner_value
 
 
 

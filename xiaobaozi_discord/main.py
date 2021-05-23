@@ -56,8 +56,9 @@ async def on_message(message):
             chapter = chapters[0]
         else:
             await message.channel.send('Please try again! Please do not include any punctuations')
-        respond = util.register_user_to_bible_reading(str(member_id), book, int(chapter))
-        await message.channel.send(respond)
+        if book != [] and chapters != []:
+            respond = util.register_user_to_bible_reading(str(member_id), book, int(chapter))
+            await message.channel.send(respond)
 
 
     if re.search(BIBLE_DONE_READING_REGEX, content):
@@ -78,19 +79,22 @@ async def on_message(message):
 @tasks.loop(hours=24)
 async def called_once_a_day():
     date = util.get_date()
-    winner_id, winner_value = util.water_summary(database, date)
-    guild = client.get_guild(ids.server_id)
-    winner = guild.get_member(int(winner_id))
-    for channel_id in ids.water_drinking_contest_channels:
-        message_channel = client.get_channel(channel_id)
-        await message_channel.send(f"The \N{CUP WITH STRAW}winner of {date} is {winner.name} with {winner_value} cups of water \N{CONFETTI BALL}")
-    
+    try:
+        winner_id, winner_value = util.water_summary(database, date)
+        guild = client.get_guild(ids.server_id)
+        winner = guild.get_member(int(winner_id))
+        for channel_id in ids.water_drinking_contest_channels:
+            message_channel = client.get_channel(channel_id)
+            await message_channel.send(f"The \N{CUP WITH STRAW}winner of {date} is {winner.name} with {winner_value} cups of water \N{CONFETTI BALL}")
+    except:
+        pass
+        
     with shelve.open('data/bibleReading') as db:
         for user in db.keys():
             book, chapter, channel = db[user]
             reminder = f"Remember to read Book {book} Chapter {chapter}!"
-            channel = client.get_channel(channel_id)
-            await message.channel.send(reminder)
+            channel = client.get_channel(channel)
+            await channel.send(reminder)
 
 @called_once_a_day.before_loop
 async def before():
