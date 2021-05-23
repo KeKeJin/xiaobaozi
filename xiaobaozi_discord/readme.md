@@ -17,7 +17,7 @@ python3 main.py
 
 ### Track Water Consumption 
 
-Create a channel for water drinking contest. Once you drink a glass of water, send a :cup with straw: ':cup_with_straw:' emoji to the channel. Xiao Baozi keeps track of all the users in the server, and annouces the winner of the day to the channel (record the channel id in `ids.py`).
+Create a channel for water drinking contest. Once you drink a glass of water, send a :cup with straw: ':cup_with_straw:' emoji to the channel. Xiao Baozi keeps track of all the users in the server, and annouces the winner of the day to the channel. (Please remember to record the channel id in `ids.py`!).
 
 ### Bible Reading Plan
 
