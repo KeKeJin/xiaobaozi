@@ -33,7 +33,7 @@ async def on_message(message):
     
     content = message.content
     member_id = message.author.id
-    uni_key = str(member_id)+" "+str(message.guild)
+    uni_key = str(member_id)+" "+str(message.guild.id)
 
     if content.startswith('\N{CUP WITH STRAW}'):
         await message.add_reaction('\N{CUP WITH STRAW}')
@@ -100,15 +100,15 @@ async def called_once_a_day():
     except:
         pass
         
-    # try:
-    with shelve.open('data/bibleReading') as db:
-        for user_data in db.keys():
-            book, chapter, channel = db[user_data]
-            user = user_data.split()[0]
-            reminder = f"Remember to read Book {book} Chapter {chapter}! <@{user}>"
-            channel = client.get_channel(channel)
-            await channel.send(reminder)
-    # except: print('oops')
+    try:
+        with shelve.open('data/bibleReading') as db:
+            for user_data in db.keys():
+                book, chapter, channel = db[user_data]
+                user = user_data.split()[0]
+                reminder = f"Remember to read Book {book} Chapter {chapter}! <@{user}>"
+                channel = client.get_channel(channel)
+                await channel.send(reminder)
+    except: print('oops')
 
 @called_once_a_day.before_loop
 async def before():
