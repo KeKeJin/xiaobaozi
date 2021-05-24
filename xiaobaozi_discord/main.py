@@ -102,7 +102,7 @@ async def called_once_a_day():
     with shelve.open('data/bibleReading') as db:
         for user in db.keys():
             book, chapter, channel = db[user]
-            reminder = f"Remember to read Book {book} Chapter {chapter}!"
+            reminder = f"Remember to read Book {book} Chapter {chapter}! <@{user}>"
             channel = client.get_channel(channel)
             await channel.send(reminder)
 
