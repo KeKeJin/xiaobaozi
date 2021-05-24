@@ -14,6 +14,8 @@ BIBLE_READING_REGEX = ".*[Bb]ible reading plan.*"
 
 BIBLE_DONE_READING_REGEX = ".*[Dd]one\s[Rr]ead.*"
 
+WATER_SUMMARY = ".*water.*summary.*"
+
 intents = discord.Intents.default()
 intents.members = True
 client = discord.Client(intents=intents)
@@ -80,10 +82,11 @@ async def on_message(message):
 async def called_once_a_day():
     date = util.get_date()
     try:
-        winner_id, winner_value = util.water_summary(database, date)
+        (winner_id, _), winner_value = util.water_summary(database, date)
         guild = client.get_guild(ids.server_id)
         winner = guild.get_member(int(winner_id))
         for channel_id in ids.water_drinking_contest_channels:
+            print('here')
             message_channel = client.get_channel(channel_id)
             await message_channel.send(f"The \N{CUP WITH STRAW}winner of {date} is {winner.name} with {winner_value} cups of water \N{CONFETTI BALL}")
     except:
