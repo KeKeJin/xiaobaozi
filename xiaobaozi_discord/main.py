@@ -36,7 +36,7 @@ async def on_message(message):
 
     if content.startswith('\N{CUP WITH STRAW}'):
         await message.add_reaction('\N{CUP WITH STRAW}')
-        util.add_one_water_table( member_id, message.channel.id,  database )
+        util.add_one_water_table( message.author.name, message.channel.id,  database )
         
     
     if re.search(GREETING_REGEX, content):
@@ -78,17 +78,24 @@ async def on_message(message):
                 respond = "You have not registered your bible reading plan. Type 'bible reading plan' + book + chapter to start!"
         await message.channel.send(respond)
 
+    if re.search(WATER_SUMMARY, content):
+        date = util.get_date()
+        try:
+            result = util.water_summary_to_list(database, date)
+            respond = f"The leader is {result[0][0]} with {result[0][1]} cups of water! \n Here is a complete list of all contestants "
+            for user, value in result:
+                respond += f"\n {user} with {value} cups"
+            await message.channel.send(respond)
+        except:
+            pass
 @tasks.loop(hours=24)
 async def called_once_a_day():
     date = util.get_date()
     try:
-        (winner_id, _), winner_value = util.water_summary(database, date)
-        guild = client.get_guild(ids.server_id)
-        winner = guild.get_member(int(winner_id))
+        (winner, _), winner_value = util.water_summary_find_winner(database, date)
         for channel_id in ids.water_drinking_contest_channels:
-            print('here')
             message_channel = client.get_channel(channel_id)
-            await message_channel.send(f"The \N{CUP WITH STRAW}winner of {date} is {winner.name} with {winner_value} cups of water \N{CONFETTI BALL}")
+            await message_channel.send(f"The \N{CUP WITH STRAW}winner of {date} is {winner} with {winner_value} cups of water \N{CONFETTI BALL}")
     except:
         pass
         

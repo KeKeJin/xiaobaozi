@@ -45,17 +45,27 @@ def get_date():
 def get_time():
     return datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 
+def water_summary_find_winner(db, date):
+    cleaned_result = water_summary(db, date)
+    if cleaned_result != Counter():
+        winner, winner_value = cleaned_result[0]
+        return winner, winner_value
+
+def water_summary_to_list(db, date):
+    cleaned_result = water_summary(db, date)
+    sorted_list = [[user, value] for (user, channel), value in cleaned_result]
+    sorted_without_duplicated = []
+    for i in sorted_list:
+        if i not in sorted_without_duplicated:
+            sorted_without_duplicated.append(i)
+    return sorted_without_duplicated
+
 def water_summary(db, date):
     select = f"SELECT * FROM water WHERE date='{date}'"
-    print(select)
     cur = db.cursor()
     result = cur.execute(select).fetchall()
     cleaned_result = Counter([(user, channel) for user, channel, date, time in result])
-    if cleaned_result != Counter():
-        winner, winner_value = cleaned_result.most_common()[0]
-        return winner, winner_value
-
-
+    return cleaned_result.most_common()
 
 """Register user to the bibleReading database"""
 def register_user_to_bible_reading(user_id, book, chapter, channel_id):
