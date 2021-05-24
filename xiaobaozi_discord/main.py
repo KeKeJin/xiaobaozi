@@ -33,6 +33,7 @@ async def on_message(message):
     
     content = message.content
     member_id = message.author.id
+    uni_key = str(member_id)+" "+str(message.guild)
 
     if content.startswith('\N{CUP WITH STRAW}'):
         await message.add_reaction('\N{CUP WITH STRAW}')
@@ -59,7 +60,7 @@ async def on_message(message):
         else:
             await message.channel.send('Please try again! Please do not include any punctuations')
         if book != [] and chapters != []:
-            respond = util.register_user_to_bible_reading(str(member_id), book, int(chapter))
+            respond = util.register_user_to_bible_reading(uni_key, book, int(chapter), message.channel.id)
             await message.channel.send(respond)
 
 
@@ -71,8 +72,8 @@ async def on_message(message):
             chapter_num = chapters[0]
         else: chapter_num = 1
         with shelve.open('data/bibleReading') as db:
-            if str(member_id) in db:
-                next_book, next_chapter= util.updateBibleReadingPlan(str(member_id), chapter_num)
+            if uni_key in db:
+                next_book, next_chapter= util.updateBibleReadingPlan(uni_key, chapter_num)
                 respond = f"Nice job! Tomorrow you will read Book {next_book} Chapter {next_chapter}"
             else:
                 respond = "You have not registered your bible reading plan. Type 'bible reading plan' + book + chapter to start!"
@@ -99,12 +100,15 @@ async def called_once_a_day():
     except:
         pass
         
+    # try:
     with shelve.open('data/bibleReading') as db:
-        for user in db.keys():
-            book, chapter, channel = db[user]
+        for user_data in db.keys():
+            book, chapter, channel = db[user_data]
+            user = user_data.split()[0]
             reminder = f"Remember to read Book {book} Chapter {chapter}! <@{user}>"
             channel = client.get_channel(channel)
             await channel.send(reminder)
+    # except: print('oops')
 
 @called_once_a_day.before_loop
 async def before():
